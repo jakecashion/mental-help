@@ -5,7 +5,7 @@
 
 ## Origin
 
-This project was born from a personal experience — a family member diagnosed with Bipolar Disorder and Dissociative Identity Disorder (Multiple Personality Disorder) was found in a life-threatening situation in Los Angeles. She was stabilized with the help of a deeply experienced, well-connected care team.
+Family members who find themselves in a life-threatening mental health crisis, face many issues on the road to care. With the help of a deeply experienced, well-connected care team, they can be stabilized
 
 The founding question came immediately after:
 
