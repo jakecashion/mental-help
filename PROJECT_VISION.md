@@ -1,0 +1,207 @@
+# Project Vision — mental-help
+> *Working document. Name subject to change.*
+
+---
+
+## Origin
+
+This project was born from a personal experience — a family member diagnosed with Bipolar Disorder and Dissociative Identity Disorder (Multiple Personality Disorder) was found in a life-threatening situation in Los Angeles. She was stabilized with the help of a deeply experienced, well-connected care team.
+
+The founding question came immediately after:
+
+> *What happens to the families who don't have access to this?*
+
+---
+
+## The Problem
+
+When a mentally ill individual reaches a crisis point, their family is suddenly thrust into one of the highest-stakes decisions of their lives — usually while exhausted, frightened, and completely unprepared.
+
+Their primary tool in that moment is **Google.**
+
+Google surfaces treatment facilities based on SEO spend, not program quality, specialist expertise, or fit for a specific diagnosis. Families without prior knowledge of the mental health system have no framework to evaluate what they're even looking at. They don't know the difference between inpatient, residential, PHP, or IOP. They don't know what questions to ask. They don't know what red flags to watch for when speaking to a facility.
+
+The result is a predictable cycle:
+
+1. Crisis occurs
+2. Family finds a facility through a low-quality search process
+3. Loved one is placed in a program that is a poor fit — wrong level of care, wrong specialist match, or low quality overall
+4. Treatment fails or is incomplete
+5. Crisis recurs
+
+**The landscape itself is also deeply confusing.** The types of care available, what they mean, what they cost, and who they're appropriate for — this information is fragmented, jargon-heavy, and inaccessible to the average family.
+
+---
+
+## The Core Insight
+
+What families in crisis need is the equivalent of **a knowledgeable, calm friend** — someone who can meet them where they are emotionally, help them understand their options in plain language, and prepare them to make an informed decision.
+
+That kind of guidance currently exists — but only for people with the right connections. It is the product of decades of relationship-building and institutional knowledge. It cannot be directly replicated.
+
+What *can* be built is a tool that makes families **significantly less lost** than they currently are — one that educates, orients, and arms them before they make the most important call of their lives.
+
+---
+
+## What We Learned in Discovery
+
+### Original Vision vs. Reality
+
+The original vision was to build a matching engine — a tool that could identify the *best* facility for a specific patient based on staff credentials, clinical specialization history, and program quality.
+
+Discovery revealed a foundational constraint: **that data does not exist in any reliable, structured, publicly accessible form.**
+
+Facility and provider data is fragmented across 50 state licensing boards, self-reported marketing materials, and unstructured staff bios. The clinical experience that matters most — a psychiatrist who has treated hundreds of Bipolar patients over 20 years — leaves almost no public digital footprint. What does exist is either self-reported (and unverifiable) or research-focused (and unrepresentative of most practicing clinicians).
+
+Collecting that data ourselves is out of scope given current resources and stage.
+
+**This does not invalidate the problem. It sharpens what we can actually build.**
+
+### The SAMHSA Data Question — Resolved
+
+The URS (Uniform Reporting System) dataset, initially identified as a potential data source, is not appropriate for this use case. It contains aggregate state-level mental health statistics for government planning purposes — not individual facility listings.
+
+The correct data source is the **N-SUMHSS (National Substance Use and Mental Health Services Survey)**, which covers all known substance use and mental health treatment facilities in the United States. This dataset:
+
+- Contains facility-level records (name, location, services offered, program types)
+- Is updated annually
+- Feeds directly into **FindTreatment.gov**, SAMHSA's public-facing facility locator
+- Is accessible via a public API
+
+This resolves the open data question. The spike is no longer "does usable data exist" — it is "how do we integrate the FindTreatment.gov API cleanly, and what are its practical limitations."
+
+### The Interaction Model — Decided
+
+The first interaction a user has with this tool is a **guided step-by-step questionnaire**, not a conversational AI and not an open educational hub. This is appropriate for the emotional state of the primary user: high distress, low capacity to process, urgent time pressure. A guided flow reduces cognitive load and keeps the user moving forward.
+
+### The Care Level Recommendation — Decided
+
+The questionnaire leads to a care level recommendation. That recommendation will be generated by **rule-based decision tree logic** — not AI. This is a deliberate, non-negotiable architectural decision.
+
+In a healthcare context, a hallucinated or confidently wrong recommendation is not a minor inconvenience — it is a danger. Rule-based logic means the outputs are deterministic, auditable, and reviewable by a clinician before they ever reach a real user.
+
+The decision tree is expected to be large and complex. It must account for, at minimum:
+
+- Immediate safety: is the person a danger to themselves or others? (This triggers a separate path — 911 or crisis line, not facility search)
+- Age of the patient (minor vs. adult)
+- Insurance status and type
+- Geography and what is actually available there
+- Symptom severity and acuity
+- Diagnosis type where known
+
+**This logic must be reviewed and validated by a clinical advisor before it is presented to users as guidance.** Clinical advisor engagement is a hard dependency, not a nice-to-have.
+
+---
+
+## Primary User
+
+**The family member.**
+
+Not the patient. Not the clinician. The person sitting in a hospital parking lot or at a kitchen table at 2am, phone in hand, trying to figure out what to do next.
+
+This person typically has:
+- No prior knowledge of how the mental health treatment system works
+- No framework to evaluate what they're looking at
+- High emotional distress and low capacity to process complex information
+- Urgent time pressure
+
+Everything about this tool — its language, its emotional tone, its UX, its pacing — must be designed for that person in that moment.
+
+---
+
+## Primary Focus (Phase 1)
+
+**Getting families from panic to prepared.**
+
+Not finding the perfect facility. Not replacing a care coordinator. Giving a frightened family member enough understanding and enough tools to stop making blind guesses and start asking the right questions.
+
+### The User Funnel
+
+The Phase 1 experience is a linear funnel: **Orient → Locate → Prepare.**
+
+**1. Orient — Understand what level of care their loved one needs right now**
+
+The entry point. A guided questionnaire walks the family through a structured set of questions about their situation. The answers feed into a rule-based decision tree that recommends a level of care (inpatient, residential, PHP, IOP, or outpatient) in plain language, with a brief explanation of what that means and why it fits.
+
+If the situation indicates immediate safety risk, this step redirects to crisis resources (988, 911) before anything else.
+
+**2. Locate — Surface real facilities that match**
+
+Once a care level is established, show the user real facilities filtered to that type, in their geography, pulled from the FindTreatment.gov API (N-SUMHSS data). Present this data honestly — it is a registry, not a quality ranking. Supplement with Joint Commission accreditation status where available.
+
+**3. Prepare — Arm them for the conversation with a facility**
+
+They have a shortlist. Give them the questions to ask, framed around the specific care level they're looking for. Include red flags to listen for. Set realistic expectations about the process — it is slow, hard, and often frustrating. Families who don't know this make panic decisions or give up at the first obstacle.
+
+---
+
+## What This Tool Is Not
+
+- It is not a clinical recommendation engine
+- It is not a guarantee of facility quality
+- It is not a replacement for a care coordinator or clinician
+- It does not have access to verified staff credential data or treatment outcome history
+- It does not use AI to generate care guidance or clinical assessments
+
+These limitations must be clearly communicated to the user. In a healthcare context, false confidence is dangerous.
+
+---
+
+## Open Research Questions
+
+These remain unanswered and must be addressed before or during build:
+
+1. **FindTreatment.gov API — practical limitations.** The data source is confirmed. What remains unknown: API rate limits, completeness by geography, how frequently facility data is updated, and what fields are reliably populated vs. sparse.
+
+2. **Legal and liability considerations.** A tool that surfaces treatment options and flags red flags operates in a sensitive space. What disclaimers, guardrails, and legal structures are needed? This has not been addressed.
+
+3. **Clinical advisor engagement.** The care level decision tree cannot go in front of real users without clinical review. The builder has a lead but no confirmed advisor. This is the most critical unresolved dependency.
+
+4. **Decision tree scope and validation.** "What level of care does this person need" is a clinically complex question. The full branch structure of the decision tree — including edge cases, safety escalation paths, and diagnosis-specific routing — requires clinical input to define accurately.
+
+---
+
+## Builder Context
+
+This project is being built solo by a college-age developer with:
+
+- Strong frontend experience
+- Growing backend knowledge
+- An aptitude for systems architecture
+- Limited budget — this must be built lean
+- Tooling: Matt Pocock's `skills` toolkit (`/grill-with-docs`, `/to-prd`, `/to-issues`, `/tdd`) for structured, agent-assisted development
+
+### Architecture Principles
+
+- Start with what can be built now with existing skills
+- Avoid over-engineering in early stages
+- **No AI for clinical logic.** Rule-based decision trees only for anything that touches care guidance. AI may be used narrowly for low-stakes tasks (UI copy generation, search query formatting) where the cost of being wrong is low
+- Build in public where possible to attract collaborators, clinical advisors, and future contributors
+- Prioritize visible progress — each phase of build should produce something real and usable, not infrastructure that pays off later
+
+### Development Workflow
+
+Before writing code, the following sequence applies to this repo:
+
+1. Run `/setup-matt-pocock-skills` to scaffold CONTEXT.md, ADR folder, and issue tracker config
+2. Run `/grill-with-docs` against this document to formalize shared language and architectural decisions
+3. Use `/to-prd` and `/to-issues` to generate GitHub issues from the resulting PRD
+4. Use `/tdd` for feature development with a red-green-refactor loop
+
+---
+
+## North Star
+
+A family in crisis should never have to make a blind guess about where to take their loved one.
+
+They should have access to something that thinks clearly when they cannot — that asks the right questions, understands the landscape, and points them toward real help.
+
+The version of that we can build today is smaller than the full vision. It is not less valuable.
+
+---
+
+## What This Document Is
+
+This is a living discovery document. It is not a product spec, a technical plan, or a business plan. It is a record of the founding understanding of the problem — including what was learned, what was revised, and what remains unknown.
+
+*Last updated: June 2026*
